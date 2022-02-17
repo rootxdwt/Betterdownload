@@ -17,6 +17,7 @@ import (
 const (
 	TempFileNameStrLength = 12   //length of the random name of the temporary file used in the download progress
 	FilePermission        = 0777 //the numeric chmod parameter for the generated file
+	MaxConcurrentRequests = 5
 )
 
 const (
@@ -61,7 +62,7 @@ func main() {
 
 	howManyChunks := len(chunkSlice)
 	switch {
-	case howManyChunks <= 5:
+	case howManyChunks <= MaxConcurrentRequests:
 		for i := 0; i < len(chunkSlice); i++ {
 			fmt.Printf("Starting Worker %d\n", i)
 			wg.Add(1)
@@ -69,10 +70,10 @@ func main() {
 		}
 		wg.Wait()
 
-	case howManyChunks > 5:
+	case howManyChunks > MaxConcurrentRequests:
 		var i int
-		for v := 0; v < howManyChunks/5; v++ {
-			for i = i; i < 5*v; i++ {
+		for v := 0; v < howManyChunks/MaxConcurrentRequests; v++ {
+			for i = i; i < MaxConcurrentRequests*v; i++ {
 				fmt.Printf("Starting Worker %d\n", i)
 				wg.Add(1)
 				go getAndWriteChunk(url, []int{chunkSlice[0] * i, chunkSlice[0]*i + chunkSlice[i]}, tempFileName, contentLength, &wg)
