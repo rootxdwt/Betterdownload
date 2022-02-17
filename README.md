@@ -1,2 +1,2 @@
 # Betterdownload
-will make your downloads faster
+faster download by requesting concurrently with goroutine.
